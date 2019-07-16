@@ -55,6 +55,12 @@ type AverageData {
     average: Float!
 }
 
+type ProjectByType {
+    _id: [String]
+    tasks: [[String]]
+}
+
+
 input UserInputData {
     name: String!
     curp: String!
@@ -95,6 +101,7 @@ type RootQuery {
     projects: ProjectData!
     project(id: ID!): Project!
     userGradeAverage(id: ID): AverageData!
+    projectsByType: ProjectByType
 
 }
 

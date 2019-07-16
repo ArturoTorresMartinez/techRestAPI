@@ -8,7 +8,7 @@ module.exports = {
     //Hello for you guys!
     return "Hello you guys over at Innohub!";
   },
-  users: async function(req) {
+  users: async function (req) {
     //Get all users!
     const totalUsers = await User.find().countDocuments();
     const users = await User.find().sort({ createdAt: -1 });
@@ -24,7 +24,7 @@ module.exports = {
       totalUsers: totalUsers
     };
   },
-  user: async function({ id }, req) {
+  user: async function ({ id }, req) {
     //Get one user!
     const user = await User.findById(id);
     return {
@@ -34,7 +34,7 @@ module.exports = {
       updatedAt: user.updatedAt.toISOString()
     };
   },
-  createUser: async function({ userInput }, req) {
+  createUser: async function ({ userInput }, req) {
     //Create a worker!
     const user = new User({
       name: userInput.name,
@@ -51,7 +51,7 @@ module.exports = {
       updatedAt: createdUser.updatedAt.toISOString()
     };
   },
-  tasks: async function(req) {
+  tasks: async function (req) {
     //Get all tasks!
     const totalTasks = await Task.find().countDocuments();
     const tasks = await Task.find()
@@ -70,7 +70,7 @@ module.exports = {
       totalTasks: totalTasks
     };
   },
-  task: async function({ id }, req) {
+  task: async function ({ id }, req) {
     //Get one task!
     const task = await Task.findById(id).populate("workers");
     return {
@@ -81,7 +81,7 @@ module.exports = {
       updatedAt: task.updatedAt.toISOString()
     };
   },
-  createTask: async function({ taskInput }, req) {
+  createTask: async function ({ taskInput }, req) {
     //Create a task!
     if (!moment(taskInput.deadline, "DD/MM/YYYY", true).isValid()) {
       const error = new Error("Invalid date format, please use DD/MM/YYYY");
@@ -104,7 +104,7 @@ module.exports = {
       updatedAt: createdTask.updatedAt.toISOString()
     };
   },
-  addUserToTask: async function({ usertaskInput }, req) {
+  addUserToTask: async function ({ usertaskInput }, req) {
     //Adding user to task!
     const task = await Task.findById(usertaskInput.task).populate("workers");
     task.workers.forEach(user => {
@@ -126,7 +126,7 @@ module.exports = {
       updatedAt: savedTask.updatedAt.toISOString()
     };
   },
-  projects: async function(req) {
+  projects: async function (req) {
     //Get all projects!
     const totalProjects = await Project.find().countDocuments();
     const projects = await Project.find()
@@ -144,7 +144,7 @@ module.exports = {
       totalProjects: totalProjects
     };
   },
-  project: async function({ id }, req) {
+  project: async function ({ id }, req) {
     //Get one project!
     const project = await Project.findById(id).populate({
       path: "tasks",
@@ -157,7 +157,7 @@ module.exports = {
       updatedAt: project.updatedAt.toISOString()
     };
   },
-  createProject: async function({ projectInput }, req) {
+  createProject: async function ({ projectInput }, req) {
     //Create a project!
     const project = new Project({
       name: projectInput.name,
@@ -172,7 +172,7 @@ module.exports = {
       updatedAt: createdProject.updatedAt.toISOString()
     };
   },
-  addTaskToProject: async function({ taskprojectInput }, req) {
+  addTaskToProject: async function ({ taskprojectInput }, req) {
     //Adding task to project!
     const project = await Project.findById(taskprojectInput.project).populate({
       path: "tasks",
@@ -197,7 +197,7 @@ module.exports = {
     };
   },
 
-  userGradeAverage: async function({ id }, req) {
+  userGradeAverage: async function ({ id }, req) {
     //Average score per User!
     const tasks = await Task.find({ workers: id }).populate("workers");
     const user = await User.findById(id);
@@ -215,6 +215,18 @@ module.exports = {
         updatedAt: user.updatedAt.toISOString()
       },
       average: average
+    };
+  },
+  projectsByType: async function () {
+    const projects = await Project.aggregate([{ $group: { _id: "$type", tasks: { $push: "$name" } } }]);
+    console.log(projects);
+    return {
+      _id: projects.map(p => {
+        return p._id.toString();
+      }),
+      tasks: projects.map(p => {
+        return p.tasks;
+      })
     };
   }
 };
